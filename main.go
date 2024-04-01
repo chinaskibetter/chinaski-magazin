@@ -31,6 +31,7 @@ func main() {
 	var nameProduct string
 	var productID, orderID int
 	var quantity int
+	var lastShelfName string
 	var output string = "=+=+==\nСтраница сборки заказов " + strings.Join(orderIDs, ",") + "\n\n"
 
 	for rows.Next() {
@@ -38,10 +39,17 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		output += fmt.Sprintf("===%s\n", nameShelf)
+
+		if nameShelf != lastShelfName {
+			lastShelfName = nameShelf
+			output += fmt.Sprintf("===%s\n", nameShelf)
+			fmt.Sprintf("\n")
+		}
+
 		fmt.Sprintf("\n")
 		output += fmt.Sprintf("%s (id=%d)\n", nameProduct, productID)
 		output += fmt.Sprintf("заказ %d, %d шт\n", orderID, quantity)
+		fmt.Sprintf("\n")
 	}
 	fmt.Println(output)
 }
