@@ -32,7 +32,8 @@ func main() {
 	var productID, orderID int
 	var quantity int
 	var lastShelfName string
-	var output string = "=+=+==\nСтраница сборки заказов " + strings.Join(orderIDs, ",") + "\n\n"
+	fmt.Println("=+=+==")
+	fmt.Println("Страница сборки заказов", strings.Join(orderIDs, ","))
 
 	for rows.Next() {
 		err = rows.Scan(&nameShelf, &nameProduct, &productID, &quantity, &orderID)
@@ -42,14 +43,10 @@ func main() {
 
 		if nameShelf != lastShelfName {
 			lastShelfName = nameShelf
-			output += fmt.Sprintf("===%s\n", nameShelf)
-			fmt.Sprintf("\n")
+			fmt.Println("===", nameShelf)
 		}
-
-		fmt.Sprintf("\n")
-		output += fmt.Sprintf("%s (id=%d)\n", nameProduct, productID)
-		output += fmt.Sprintf("заказ %d, %d шт\n", orderID, quantity)
-		fmt.Sprintf("\n")
+		fmt.Printf("%s (id=%d)\n", nameProduct, productID)
+		fmt.Printf("заказ %d, %d шт\n", orderID, quantity)
+		fmt.Println()
 	}
-	fmt.Println(output)
 }
