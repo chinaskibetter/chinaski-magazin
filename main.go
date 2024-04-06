@@ -21,11 +21,29 @@ func main() {
 	scanner.Scan()
 	orderIDs := strings.Split(scanner.Text(), ",")
 
-	rows, err := db.Query("SELECT s.name AS shelf_name, p.name AS product_name, p.id AS product_id, ps.quantity, op.id_order AS order_id FROM shelf s JOIN shelf_products ps ON s.id = ps.id_shelf JOIN products p ON ps.id_product = p.id JOIN order_products op ON p.id = op.id_product AND op.id_order")
+	rowsShelf, err := db.Query("SELECT name FROM shelf")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rows.Close()
+	defer rowsShelf.Close()
+
+	rowsProducts, err := db.Query("SELECT name, id FROM products")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rowsProducts.Close()
+
+	rowsShelfProducts, err := db.Query("SELECT quantity FROM shelf_products")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rowsShelfProducts.Close()
+
+	rowsOrderProducts, err := db.Query("SELECT id_order FROM order_products")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rowsOrderProducts.Close()
 
 	var nameShelf string
 	var nameProduct string
@@ -35,8 +53,8 @@ func main() {
 	fmt.Println("=+=+==")
 	fmt.Println("Страница сборки заказов", strings.Join(orderIDs, ","))
 
-	for rows.Next() {
-		err = rows.Scan(&nameShelf, &nameProduct, &productID, &quantity, &orderID)
+	for rowsShelf.Next() {
+		err = rowsShelf.Scan(&nameShelf)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -45,8 +63,31 @@ func main() {
 			lastShelfName = nameShelf
 			fmt.Println("===", nameShelf)
 		}
-		fmt.Printf("%s (id=%d)\n", nameProduct, productID)
-		fmt.Printf("заказ %d, %d шт\n", orderID, quantity)
-		fmt.Println()
 	}
+
+	for rowsProducts.Next() {
+		err = rowsProducts.Scan(&nameProduct, &productID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("%s (id=%d)\n", nameProduct, productID)
+	}
+
+	for rowsShelfProducts.Next() {
+		err = rowsShelfProducts.Scan(&quantity)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	for rowsOrderProducts.Next() {
+		err = rowsOrderProducts.Scan(&orderID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
+	fmt.Printf("заказ %d, %d шт\n\n", orderID, quantity)
 }
